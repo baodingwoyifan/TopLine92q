@@ -1,6 +1,8 @@
 <template>
-  <div class="login-container">
-
+<!-- 01-创建盒子体现页面显示效果 -->
+<!-- 01-.1父盒子 -->
+<div class="login-container">
+<!-- 01-.2子盒子 -->
 <div class="login-box">
 
     <el-form ref="loginFromRef" :model="loginFrom" :rules='loginFromRoules'>
@@ -21,7 +23,7 @@
 </el-form-item>
 <!-- 登录按钮-->
  <el-form-item>
-<el-button type='primary' style="width:100%" @click='login()'>登陆</el-button>
+<el-button type='primary' style="width:100%"  :disabled='isActive' @click='login()' >登陆</el-button>
  </el-form-item>
     </el-form>
 </div>
@@ -30,6 +32,7 @@
 </template>
 
 <script>
+// 导入极验的js文件
 import './gt.js'
 export default {
   data () {
@@ -49,8 +52,8 @@ export default {
       loginFrom: {
         mobile: '',
         code: '',
-        xieyi: false
-
+        xieyi: false,
+        isActive: false
       },
       // 手机号码及验证码校验
       loginFromRoules: {
@@ -76,37 +79,50 @@ export default {
       // validate 饿了么提供的表单校验方法
       // 获得组件对象 el-from( this.$refs.loginFromRef这就是组件对象，固定写法)
       // this.$refs.loginFromRef.validate(回调函数)
+      // 点击按钮后把按钮禁用
       this.$refs.loginFromRef.validate(valid => {
+        // 表单校验失败，后续代码不在执行
         if (!valid) { return false }
+        // 表单校验成功，像服务器发送请求，判断用户信息
+        this.isActive = true // 登录按钮处于等待、禁用状态
+        // 向极验服务器发送请求，获取密钥信息
         let pro = this.$http({
+        // 把要验证的手机号发送过去
           url: '/mp/v1_0/captchas/' + this.loginFrom.mobile,
           method: 'GET'
         })
         pro
+          // 发送请求成功
           .then(result => {
             // 从result中结构赋值下面的data
             let { data } = result.data
+            // initGeetest是一个函数，需要使用window来调用
             window.initGeetest({
             // 以下配置参数来自服务端 SDK
               gt: data.gt,
               challenge: data.challenge,
               offline: !data.success,
               new_captcha: true,
+              // product: 'bind'显示窗口样式为浮动显示
               product: 'bind'
               // 设置窗口样式
             }, captchaObj => {
             // 这里可以调用验证实例 captchaObj 的实例方法
+              // 之前这里全是function，把他改成箭头函数就不会报错了
               captchaObj.onReady(() => {
-                // 验证码ready之后才能调用verify方法显示验证码
-                captchaObj.verify()// 显示验证码
+                // 验证码ready之后才能调用verify方法显示验证
+                this.isActive = false
+                // verify()方法显示验证码
+                captchaObj.verify()
               }).onSuccess(() => {
-                // 校验正确的处理
+                // 校验正确后使用axios发送请求,验证用户账号密码真实性
                 this.loginAct()
               }).onError(() => {
                 // your code
               })
             })
           })
+          // 发送请求失败
           .catch(err => {
             return this.$message.error('获取失败' + err)
           })
@@ -141,6 +157,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
+// 01-3设置父盒子css样式
 .login-container{
     background-color: gray;
     height: 100%;
@@ -150,6 +167,7 @@ export default {
     background-image: url('./login.jpg');
     background-size: cover;
      text-align: center;
+     // 01-4设置子盒子css样式
     .login-box{
         width: 410px;
         height:345px ;

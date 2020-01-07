@@ -2,7 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 
 Vue.use(VueRouter)
-// 路由
+// 路由创建
 const routes = [
   // {path:"/login",component()=>import()}箭头函数形式
   // import()import的函数调用方式，是一种按需导入，节省资源
@@ -10,7 +10,15 @@ const routes = [
   // index.vue是默认索引文件不用设置，自动会寻找，代码更节省
   // name属性的作用，编程式导航
   { path: '/login', name: 'login', component: () => import('@/views/login') },
-  { path: '/home', name: 'home', component: () => import('@/views/home') }
+  { path: '/home',
+    name: 'home',
+    component: () => import('@/views/home'),
+    redirect: '/welcome',
+    children: [
+      { path: '/welcome', name: 'welcome', component: () => import('@/views/welcome') },
+      { path: '/article', name: 'article', component: () => import('@/views/article') }
+    ] }
+
 ]
 
 const router = new VueRouter({
