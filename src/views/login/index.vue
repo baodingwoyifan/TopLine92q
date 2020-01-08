@@ -9,11 +9,17 @@
         <!-- 手机号 -->
     <img src="./logo_index.png" alt="">
   <el-form-item prop='mobile'>
-    <el-input v-model="loginFrom.mobile" placeholder="请输入手机号码"></el-input>
+    <el-input v-model="loginFrom.mobile" placeholder="请输入手机号码">
+      <i slot="prefix" class="iconfont icon-shouji1"></i>
+    </el-input>
+
   </el-form-item>
   <!-- 验证码 -->
    <el-form-item prop='code'>
-    <el-input v-model="loginFrom.code" placeholder="请输入验证码"></el-input>
+    <el-input v-model="loginFrom.code" placeholder="请输入验证码">
+      <i slot="prefix" class="iconfont icon-yanzhengma"></i>
+    </el-input>
+
   </el-form-item>
 <!-- 复选框 -->
 <!-- 协议自定义 -->
@@ -34,6 +40,8 @@
 <script>
 // 导入极验的js文件
 import './gt.js'
+// 引入图标
+import '@/assets/iconfion/iconfont.css'
 export default {
   data () {
     // 局部函数，实现校验 协议自定义
