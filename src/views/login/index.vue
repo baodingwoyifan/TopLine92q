@@ -4,7 +4,7 @@
 <div class="login-container">
 <!-- 01-.2子盒子 -->
 <div class="login-box">
-
+<!-- :model="loginFrom"收集表单全部内容 -->
     <el-form ref="loginFromRef" :model="loginFrom" :rules='loginFromRoules'>
         <!-- 手机号 -->
     <img src="./logo_index.png" alt="">
@@ -19,11 +19,11 @@
 <!-- 协议自定义 -->
 <el-form-item style="text-align:left" prop='xeiyi'>
   <el-checkbox v-model="loginFrom.xeiyi" style="margin-right: 10px" ></el-checkbox>
-<span>我以阅读并同意<a href="https://game.qq.com/contract.shtml">隐私条款</a></span>
+<span>我以阅读并同意<a href="https://game.qq.com/contract.shtml">隐私条款</a>及<a href="#">用户协议</a></span>
 </el-form-item>
 <!-- 登录按钮-->
  <el-form-item>
-<el-button type='primary' style="width:100%"  :disabled='isActive' @click='login()' >登陆</el-button>
+<el-button type='primary' style="width:100%" :loading=' isLoading'  :disabled=' isLoading' @click='login()' >登陆</el-button>
  </el-form-item>
     </el-form>
 </div>
@@ -49,11 +49,12 @@ export default {
       value ? callback() : callback(new Error('请遵守协议'))
     }
     return {
+      isLoading: false, // 按钮禁用以及加载提示
+      catObj: null, // 极验对象
       loginFrom: {
         mobile: '',
         code: '',
-        xieyi: false,
-        isActive: false
+        xieyi: false
       },
       // 手机号码及验证码校验
       loginFromRoules: {
@@ -84,7 +85,11 @@ export default {
         // 表单校验失败，后续代码不在执行
         if (!valid) { return false }
         // 表单校验成功，像服务器发送请求，判断用户信息
-        this.isActive = true // 登录按钮处于等待、禁用状态
+        // 极验人机交互体验优化
+        if (this.catObj !== null) {
+          return this.catObj.verify()
+        }
+        this.isLoading = true // 登录按钮处于等待、禁用状态
         // 向极验服务器发送请求，获取密钥信息
         let pro = this.$http({
         // 把要验证的手机号发送过去
@@ -110,10 +115,12 @@ export default {
             // 这里可以调用验证实例 captchaObj 的实例方法
               // 之前这里全是function，把他改成箭头函数就不会报错了
               captchaObj.onReady(() => {
-                // 验证码ready之后才能调用verify方法显示验证
-                this.isActive = false
                 // verify()方法显示验证码
                 captchaObj.verify()
+                // 验证码ready之后才能调用verify方法显示验证
+                this.isLoading = false
+                // 优化
+                this.catObj = captchaObj
               }).onSuccess(() => {
                 // 校验正确后使用axios发送请求,验证用户账号密码真实性
                 this.loginAct()

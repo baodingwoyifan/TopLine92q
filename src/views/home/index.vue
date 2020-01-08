@@ -40,7 +40,7 @@
           <el-input type="text" placeholder="请输入搜索的文章内容" style="width:300px;">
             <i slot="prefix" class="el-input__icon el-icon-search"></i>
           </el-input>
-          <span style="margin:0 10px;">消息</span>
+          <span style="margin:0 10px">消息</span>
           <el-dropdown>
             <span class="el-dropdown-link">
               <img :src="photo" alt width="40" height="40" />
