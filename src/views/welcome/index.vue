@@ -1,5 +1,5 @@
 <template>
-<div></div>
+<div>欢迎访问后台</div>
 </template>
 
 <script>

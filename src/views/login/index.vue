@@ -10,7 +10,7 @@
     <img src="./logo_index.png" alt="">
   <el-form-item prop='mobile'>
     <el-input v-model="loginFrom.mobile" placeholder="请输入手机号码">
-      <i slot="prefix" class="iconfont icon-shouji1"></i>
+      <i slot="prefix" class="iconfont icon-shouji"></i>
     </el-input>
 
   </el-form-item>

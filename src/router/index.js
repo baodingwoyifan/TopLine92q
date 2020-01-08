@@ -13,8 +13,10 @@ const routes = [
   { path: '/home',
     name: 'home',
     component: () => import('@/views/home'),
+    // 设置重定向
     redirect: '/welcome',
     children: [
+      // 配置子路由
       { path: '/welcome', name: 'welcome', component: () => import('@/views/welcome') },
       { path: '/article', name: 'article', component: () => import('@/views/article') }
     ] }

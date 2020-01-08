@@ -2,8 +2,14 @@
   <el-container>
     <!-- 左侧导航 -->
     <el-aside :width="isCollapse?'65px':'200px'">
-      <el-menu router background-color="#323745" text-color="#fff" active-text-color="#ffd04b" :collapse='isCollapse' :collapse-transition='false'>
-        <el-menu-item index="1" :style="{width:isCollapse?'65px':'200px'}">
+      <!-- router开启路由导航功能模式 -->
+      <el-menu router
+      background-color="#323745"
+       text-color="#fff"
+        active-text-color="#ffd04b"
+        :collapse='isCollapse'
+         :collapse-transition='false'>
+        <el-menu-item index="/welcome" :style="{width:isCollapse?'65px':'200px'}">
           <i class="el-icon-location"></i>
           <span slot="title">首页</span>
         </el-menu-item>
@@ -67,8 +73,8 @@
           </el-dropdown>
         </div>
       </el-header>
-      <!-- 设置占位符 -->
-      <el-main><router-view>欢迎</router-view></el-main>
+      <!-- 设置子组件的占位符 -->
+      <el-main><router-view></router-view></el-main>
     </el-container>
   </el-container>
 </template>
