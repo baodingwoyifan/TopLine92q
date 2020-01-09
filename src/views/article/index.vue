@@ -1,3 +1,4 @@
+/* eslint-disable vue/no-unused-vars */
 <template>
   <div>
     <!--搜索卡片区未完结------------------------->
@@ -32,7 +33,7 @@
             </el-select>
           </el-form-item>
           <!-- 时间区域 -->
-            <!--value-format="yyyy-MM-dd" 设置时间格式 -->
+          <!--value-format="yyyy-MM-dd" 设置时间格式 -->
           <el-form-item label="时间选择：">
             <el-date-picker
               v-model="timetotime"
@@ -46,6 +47,48 @@
         </el-form>
       </div>
     </el-card>
+    <!-- -----------头部--------------样式----------------- -->
+    <el-card class="box-card">
+      <!--命名插槽，头部内容-->
+      <div slot="header" class="clearfix">
+        <span>共找到{{tot}}条内容</span>
+      </div>
+      <el-table :data="articleList" style="width: 100%">
+        <!-- 普通列 -->
+        <el-table-column prop="cover.images[0]" label="图标" width="180">
+          <!-- row 是一个记录每个文章信息的一个对象 -->
+          <img slot-scope="stData" :src="stData.row.cover.images[0]" alt width="150" height="100" />
+        </el-table-column>
+
+        <el-table-column prop="title" label="标题" width="180"></el-table-column>
+        <el-table-column prop="status" label="状态" width="180">
+          <!-- 获得当前文章对像的status的状态数据，进行判断进而显示对应的内容效果 -->
+          <!-- 作用域插槽要被使用，与获取图标原理一致 -->
+          <template slot-scope="stData">
+            <el-tag v-if="stData.row.status=='0'">草稿</el-tag>
+            <el-tag v-else-if="stData.row.status=='1'" type="success">待审核</el-tag>
+            <el-tag v-else-if="stData.row.status=='2'" type="info">审核通过</el-tag>
+            <el-tag v-else-if="stData.row.status=='3'" type="warning">审核失败</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="pubdate" label="发布时间"></el-table-column>
+        <el-table-column label="操作">
+          <el-button type="primary" size="mini" icon="el-icon-edit">修改</el-button>
+          <el-button type="danger" size="mini" icon="el-icon-delete-solid">删除</el-button>
+        </el-table-column>
+      </el-table>
+      <!-- 分页组件 -->
+      <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="searchForm.page"
+        :page-sizes="[10, 20, 30, 40]"
+        :page-size="searchForm.per_page"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="tot"
+      ></el-pagination>
+    </el-card>
+    <!-- // 通过el-table表格组件绘制数据表格 -->
   </div>
 </template>
 
@@ -64,13 +107,25 @@ export default {
         this.searchForm.begin_pubdate = ''
         this.searchForm.end_pubdate = ''
       }
+    },
+    // 深度监听
+    searchForm: {
+      handler: function (newV, oldV) {
+        // 根据变化后的筛选条件，重新获取文章列表
+        this.getArticleList()
+      },
+      deep: true
     }
   },
   created () {
     this.getChannelList()
+    this.getArticleList()
   },
   data () {
     return {
+      // 文章列表
+      articleList: [],
+      tot: '',
       channelList: [],
       // 搜索表单数据对象
       searchForm: {
@@ -81,7 +136,11 @@ export default {
         // 开始时间
         begin_pubdate: '',
         // 结束时间
-        end_pubdate: ''
+        end_pubdate: '',
+        // 页码
+        page: 1,
+        // 每页条数
+        per_page: 10
       },
       timetotime: '' // 临时接收时间范围信息
     }
@@ -91,17 +150,69 @@ export default {
     getChannelList () {
       let pro = this.$http({
         url: '/mp/v1_0/channels',
-        methdo: 'GET'
+        method: 'get'
       })
       pro
         .then(result => {
-          console.log(result)
+          // console.log(result)
+          // data接收频道数据
           this.channelList = result.data.data.channels
         })
         .catch(err => {
-          return this.$message.error('获得文章频道错误：' + err)
+          return this.$message.error('获得频道失败：' + err)
         })
+    },
+    // 获取文章列表方法
+    getArticleList () {
+      let searchData = {}
+      for (var i in this.searchForm) {
+        if (this.searchForm[i] || this.searchForm === 0) {
+          // 不能用tuis
+          searchData[i] = this.searchForm[i]
+        }
+      }
+
+      let pro = this.$http({
+        url: '/mp/v1_0/articles',
+        method: 'get',
+        params: searchData
+      })
+      pro
+        .then(result => {
+          if (result.data.message === 'OK') {
+            // 把文章赋予给articleList成员
+            this.articleList = result.data.data.results
+            // 接收总条数
+            this.tot = result.data.data.total_count
+          }
+        })
+        .catch(err => {
+          return this.$message.error('获得文章列表错误:' + err)
+        })
+    },
+    // 页面变化时的处理
+    // val随意设置，代表的是变化后的页码
+    handleCurrentChange (val) {
+      // 更新页码
+      this.searchForm.page = val
+      // 根据变化后的页码更新页面的数据
+      // this.getArticleList()
+    },
+    // 每页条数发生变化时的处理
+    // val随意设置，代表的是变化后的每页条数
+    handleSizeChange (val) {
+      this.searchForm.per_page = val
+      // this.getArticleList()
     }
   }
 }
 </script>
+<style lang="less" scope>
+.box-card {
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+.el-pagination{
+  margin-top: 25px;
+}
+</style>

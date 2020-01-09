@@ -18,7 +18,9 @@ const routes = [
     children: [
       // 配置子路由
       { path: '/welcome', name: 'welcome', component: () => import('@/views/welcome') },
-      { path: '/article', name: 'article', component: () => import('@/views/article') }
+      { path: '/article', name: 'article', component: () => import('@/views/article') },
+      { path: '/articleadd', name: 'articleadd', component: () => import('@/views/articleadd') },
+      { path: '/account', name: 'account', component: () => import('@/views/account') }
     ] }
 
 ]
@@ -26,7 +28,7 @@ const routes = [
 const router = new VueRouter({
   routes
 })
-// 配置全局前置路由首位
+// 配置全局前置路由守位
 router.beforeEach((to, from, next) => {
   let userinfo = window.sessionStorage.getItem('userinfo')
   // 登陆状态

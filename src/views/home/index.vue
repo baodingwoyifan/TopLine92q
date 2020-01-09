@@ -20,7 +20,7 @@
             <i class="el-icon-menu"></i>
             <span>内容管理</span>
           </template>
-          <el-menu-item index="2-1">发布文章</el-menu-item>
+          <el-menu-item index='/articleadd'>发布文章</el-menu-item>
           <!-- index 描点信息 -->
           <!-- index="2-3"区分子集菜单 -->
           <el-menu-item index="/article">内容列表</el-menu-item>
@@ -33,7 +33,7 @@
           <span slot="title">粉丝管理</span>
         </el-menu-item>
         <!-- el-menu-item顶级菜单，index属性用于区分彼此的 -->
-        <el-menu-item index="4" :style="{width:isCollapse?'65px':'200px'}">
+        <el-menu-item index="/account" :style="{width:isCollapse?'65px':'200px'}">
           <i class="el-icon-location"></i>
           <span slot="title">账户管理</span>
         </el-menu-item>
@@ -50,18 +50,22 @@
         </div>
         <!-- 右侧导航 -->
         <div id="rt">
+          <!-- 初始input输入框太大,我们通过行内样式给他限制一下 -->
           <el-input type="text" placeholder="请输入搜索的文章内容" style="width:200px;">
             <i slot="prefix" class="el-input__icon el-icon-search"></i>
           </el-input>
+          <!-- 给span设置maring值让它更美观 -->
           <span style="margin:0 10px">信息</span>
           <el-dropdown>
+            <!-- span是一个匿名插槽 -->
             <span class="el-dropdown-link">
               <!-- 通过属性绑定，获得计算属性获得的name和photo -->
               <img :src="photo" alt width="40" height="40" />
-             {{name}}
+             {{ name}}
               <i class="el-icon-arrow-down el-icon--right"></i>
             </span>
             <!-- 下拉菜单组件 -->
+            <!-- el-dropdown-menu是一个命名插槽 -->
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item>个人信息</el-dropdown-item>
               <el-dropdown-item>github地址</el-dropdown-item>
@@ -81,6 +85,17 @@
 
 <script>
 export default {
+  // 计算属性 合成name和photo
+  computed: {
+    // 获得账户名称
+    name: function () {
+      return JSON.parse(window.sessionStorage.getItem('userinfo')).name
+    },
+    // 获得账户头像
+    photo: function () {
+      return JSON.parse(window.sessionStorage.getItem('userinfo')).photo
+    }
+  },
   data () {
     return {
       isCollapse: false// 折叠true展开false
@@ -98,21 +113,11 @@ export default {
         this.$router.push('./login')
       }).catch(() => {
         // 退出失败
-        alert('退出失败🙄')
+        alert('退出失败')
       })
-    }
-  },
-  // 计算属性 合成name和photo
-  computed: {
-    name () {
-      return JSON.parse(window.sessionStorage.getItem('userinfo')).name
-    },
-    photo () {
-      return JSON.parse(window.sessionStorage.getItem('userinfo')).photo
     }
   }
 }
-
 </script>
 
 <style lang="less" scoped>
@@ -125,6 +130,7 @@ export default {
     background-color: white;
     display: flex;
     justify-content: space-between;
+    // justify-content: space-between分裂显示代码;
     padding: 0 10px 0 9px;
     min-width: 950px;
     #lt {
@@ -139,15 +145,18 @@ export default {
       height: 100%;
       width: 50%;
       background-color: white;
+      // 让右侧导航区域靠右居中显示
       display: flex;
       justify-content: flex-end;
       align-items: center;
       .el-dropdown-link {
+        // 虽然#rt设置了居中显示,但是并没有居中需要在 .el-dropdown-link 盒子中重新设置一下
         display: flex;
         align-items: center;
         font-size: 16px;
         img{
-border-radius: 50px
+          // 图片
+           border-radius: 50px
         }
       }
     }

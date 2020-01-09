@@ -58,7 +58,7 @@ export default {
     }
     return {
       isLoading: false, // 按钮禁用以及加载提示
-      catObj: null, // 极验对象
+      catObj: null, // 用来接收极验对象
       loginFrom: {
         mobile: '',
         code: '',
