@@ -1,6 +1,9 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
+// 引入nprogress相关的js和css文件
+import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
 Vue.use(VueRouter)
 // 路由创建
 const routes = [
@@ -20,7 +23,10 @@ const routes = [
       { path: '/welcome', name: 'welcome', component: () => import('@/views/welcome') },
       { path: '/article', name: 'article', component: () => import('@/views/article') },
       { path: '/articleadd', name: 'articleadd', component: () => import('@/views/articleadd') },
-      { path: '/account', name: 'account', component: () => import('@/views/account') }
+      { path: '/account', name: 'account', component: () => import('@/views/account') },
+      { path: '/articleedit/:aid', name: 'articleedit', component: () => import('@/views/articleedit') },
+      { path: '/material', name: 'material', component: () => import('@/views/materials') },
+      { path: '/fans', name: 'fans', component: () => import('@/views/fans/') }
     ] }
 
 ]
@@ -32,9 +38,12 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
   let userinfo = window.sessionStorage.getItem('userinfo')
   // 登陆状态
+  NProgress.inc()
   if (!userinfo && to.path !== '/login') {
     return next('/login')
   }
   next()
+  // 关闭进度条  afterEach()
+  NProgress.done()
 })
 export default router

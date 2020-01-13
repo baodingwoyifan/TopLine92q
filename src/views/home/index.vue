@@ -3,12 +3,14 @@
     <!-- 左侧导航 -->
     <el-aside :width="isCollapse?'65px':'200px'">
       <!-- router开启路由导航功能模式 -->
-      <el-menu router
-      background-color="#323745"
-       text-color="#fff"
+      <el-menu
+        router
+        background-color="#323745"
+        text-color="#fff"
         active-text-color="#ffd04b"
-        :collapse='isCollapse'
-         :collapse-transition='false'>
+        :collapse="isCollapse"
+        :collapse-transition="false"
+      >
         <el-menu-item index="/welcome" :style="{width:isCollapse?'65px':'200px'}">
           <i class="el-icon-location"></i>
           <span slot="title">首页</span>
@@ -20,14 +22,14 @@
             <i class="el-icon-menu"></i>
             <span>内容管理</span>
           </template>
-          <el-menu-item index='/articleadd'>发布文章</el-menu-item>
+          <el-menu-item index="/articleadd">发布文章</el-menu-item>
           <!-- index 描点信息 -->
           <!-- index="2-3"区分子集菜单 -->
           <el-menu-item index="/article">内容列表</el-menu-item>
           <el-menu-item index="2-3">评论列表</el-menu-item>
-          <el-menu-item index="2-4">素材管理</el-menu-item>
+          <el-menu-item index="/material">素材管理</el-menu-item>
         </el-submenu>
-        <el-menu-item index="3" :style="{width:isCollapse?'65px':'200px'}">
+        <el-menu-item index="/fans" :style="{width:isCollapse?'65px':'200px'}">
           <i class="el-icon-location"></i>
           <!-- 命名插槽 -->
           <span slot="title">粉丝管理</span>
@@ -45,7 +47,10 @@
         <!-- 左侧导航 -->
         <div id="lt">
           <!-- 折叠展开，图标发生改变 -->
-          <i :class="isCollapse? 'el-icon-s-fold':'el-icon-s-unfold'"  @click="isCollapse=!isCollapse"></i>
+          <i
+            :class="isCollapse? 'el-icon-s-fold':'el-icon-s-unfold'"
+            @click="isCollapse=!isCollapse"
+          ></i>
           <span>江苏传智播客教育科技股份有限公司</span>
         </div>
         <!-- 右侧导航 -->
@@ -61,7 +66,7 @@
             <span class="el-dropdown-link">
               <!-- 通过属性绑定，获得计算属性获得的name和photo -->
               <img :src="photo" alt width="40" height="40" />
-             {{ name}}
+              {{ name}}
               <i class="el-icon-arrow-down el-icon--right"></i>
             </span>
             <!-- 下拉菜单组件 -->
@@ -71,50 +76,92 @@
               <el-dropdown-item>github地址</el-dropdown-item>
               <!-- 组件是由许许多多的html标签组成的,给组件添加事件,它不知道具体是给那个html标签
               添加的,他就不会执行事件,使用native可以准确的使得事件作用到内部的html标签中去
-              native事件修饰符 使得事件作用到内部的html标签中去 -->
-              <el-dropdown-item @click.native='lougout ()'>退出</el-dropdown-item>
+              native事件修饰符 使得事件作用到内部的html标签中去-->
+              <el-dropdown-item @click.native="lougout ()">退出</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </div>
       </el-header>
       <!-- 设置子组件的占位符 -->
-      <el-main><router-view></router-view></el-main>
+      <el-main>
+        <router-view></router-view>
+      </el-main>
     </el-container>
   </el-container>
 </template>
 
 <script>
+// 导入公共bus的vue对象
+import bus from '@/utils/bus.js'
 export default {
+  created () {
+    // 更新账户名称信息
+    bus.$on('upAccountName', nm => {
+      // 临时成员接收修改后的账户信息
+      this.tmpname = nm
+      // 拿到存储在本地的用户信息
+      let userinfo = JSON.parse(window.sessionStorage.getItem('userinfo'))
+      // nm是兄弟组件传进来的更新后的账户名称
+      userinfo.name = nm
+      // 更新账户信息,并再次存储在本地
+      window.sessionStorage.setItem('userinfo', JSON.stringify(userinfo))
+    })
+    // 更新账户图片信息
+    bus.$on('upAccountPhoto', ph => {
+      // 临时成员接收修改后的账户图片信息
+      this.tmpphoto = ph
+      // 拿到存储在本地的用户信息
+      let userinfo = JSON.parse(window.sessionStorage.getItem('userinfo'))
+      // nm是兄弟组件传进来的更新后的图片信息
+      userinfo.photo = ph
+      // 更新账户信息,并再次存储在本地
+      window.sessionStorage.setItem('userinfo', JSON.stringify(userinfo))
+    })
+  },
   // 计算属性 合成name和photo
   computed: {
     // 获得账户名称
+    // 判断如果data小成员tmpname中有数据,就使用,没有就使用本地存储中的信息
     name: function () {
-      return JSON.parse(window.sessionStorage.getItem('userinfo')).name
+      return (
+        this.tmpname ||
+        JSON.parse(window.sessionStorage.getItem('userinfo')).name
+      )
     },
     // 获得账户头像
+    // 判断如果data小成员tmpphoto中有数据,就使用,没有就使用本地存储中的信息
     photo: function () {
-      return JSON.parse(window.sessionStorage.getItem('userinfo')).photo
+      return (
+        this.tmpphoto ||
+        JSON.parse(window.sessionStorage.getItem('userinfo')).photo
+      )
     }
   },
   data () {
     return {
-      isCollapse: false// 折叠true展开false
+      tmpname: '', // 临时账户名称
+      tmpphoto: '', // 临时账户头像
+      isCollapse: false // 折叠true展开false
     }
   },
   methods: {
     // 退出系统
     lougout () {
       // 弹框提示是否退出
-      this.$confirm('确定要退出吗', { confirmButtonText: '确定',
+      this.$confirm('确定要退出吗', {
+        confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning' }).then(() => {
-        // 退出成功清除本地存储的信息并跳转到登陆页面
-        window.sessionStorage.clear()
-        this.$router.push('./login')
-      }).catch(() => {
-        // 退出失败
-        alert('退出失败')
+        type: 'warning'
       })
+        .then(() => {
+          // 退出成功清除本地存储的信息并跳转到登陆页面
+          window.sessionStorage.clear()
+          this.$router.push('./login')
+        })
+        .catch(() => {
+          // 退出失败
+          alert('退出失败')
+        })
     }
   }
 }
@@ -154,9 +201,9 @@ export default {
         display: flex;
         align-items: center;
         font-size: 16px;
-        img{
+        img {
           // 图片
-           border-radius: 50px
+          border-radius: 50px;
         }
       }
     }

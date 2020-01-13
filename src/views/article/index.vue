@@ -1,4 +1,7 @@
-/* eslint-disable vue/no-unused-vars */
+/* eslint-disable no-undef */
+// /* eslint-disable no-tabs */
+// /* eslint-disable no-tabs */
+// /* eslint-disable vue/no-unused-vars */
 <template>
   <div>
     <!--搜索卡片区未完结------------------------->
@@ -23,17 +26,12 @@
           <!-- 频道列表 -->
           <!-- clearable表示选中后可以进行删除操作 -->
           <el-form-item label="频道列表：">
-            <el-select v-model="searchForm.channel_id" placeholder="请选择" clearable>
-              <el-option
-                v-for="item in channelList"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id"
-              ></el-option>
-            </el-select>
+            <!-- 应用子组件 -->
+              <channel></channel>
           </el-form-item>
           <!-- 时间区域 -->
           <!--value-format="yyyy-MM-dd" 设置时间格式 -->
+          <!-- v-model="timetotime"双向绑定接收时间信息 -->
           <el-form-item label="时间选择：">
             <el-date-picker
               v-model="timetotime"
@@ -56,7 +54,7 @@
       <el-table :data="articleList" style="width: 100%">
         <!-- 普通列 -->
         <el-table-column prop="cover.images[0]" label="图标" width="180">
-          <!-- row 是一个记录每个文章信息的一个对象 -->
+          <!-- row 是一个记录每个文章信息的一个对象 作用域插槽的使用-->
           <img slot-scope="stData" :src="stData.row.cover.images[0]" alt width="150" height="100" />
         </el-table-column>
 
@@ -73,8 +71,21 @@
         </el-table-column>
         <el-table-column prop="pubdate" label="发布时间"></el-table-column>
         <el-table-column label="操作">
-          <el-button type="primary" size="mini" icon="el-icon-edit">修改</el-button>
-          <el-button type="danger" size="mini" icon="el-icon-delete-solid">删除</el-button>
+          <template slot-scope="stData">
+            <el-button
+              type="primary"
+              size="mini"
+              icon="el-icon-edit"
+              @click="$router.push('/articleedit/'+ stData.row.id)"
+            >修改</el-button>
+            <!-- 删除未完 -->
+            <el-button
+              type="danger"
+              size="mini"
+              icon="el-icon-delete-solid"
+              @click="del(stData.row.id)"
+            >删除</el-button>
+          </template>
         </el-table-column>
       </el-table>
       <!-- 分页组件 -->
@@ -93,12 +104,18 @@
 </template>
 
 <script>
+import Channel from '@/components/channel'
 export default {
   name: 'Article',
+  // 注册组件
+  components: {
+    Channel
+  },
   // 监听器设置
   watch: {
     // newV数据变化后的样子
     // oldV数据变化前的样子
+    // 被检测的一般是data成员，下面data中有的在监听器中都可以监听到
     timetotime: function (newV, oldV) {
       if (newV) {
         this.searchForm.begin_pubdate = newV[0]
@@ -118,15 +135,14 @@ export default {
     }
   },
   created () {
-    this.getChannelList()
     this.getArticleList()
   },
   data () {
     return {
-      // 文章列表
+      // 存储文章列表
       articleList: [],
+      // 存储文章总数
       tot: '',
-      channelList: [],
       // 搜索表单数据对象
       searchForm: {
         // 文章状态，0-草稿，1-待审核，2-审核通过，3-审核失败，4-已删除，不传为全部
@@ -146,21 +162,32 @@ export default {
     }
   },
   methods: {
-    // 获取频道列表方法
-    getChannelList () {
-      let pro = this.$http({
-        url: '/mp/v1_0/channels',
-        method: 'get'
+    // 删除方法需要设置数据转换，在ax.js中配置
+    // 服务端返回的真实的id信息的长度超过了js中的最大的整型范围，在使用的时候会发生变形
+    // 而我们拿着变形后的“id ”去后端删除数据的话，后端没有我们传递的id，就会返回删除失败
+    // 处理方式：
+    // jsongigint 方法来进行大数字处理
+    del (id) {
+      this.$confirm('确认要删除该数据么?', '删除', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
       })
-      pro
-        .then(result => {
-          // console.log(result)
-          // data接收频道数据
-          this.channelList = result.data.data.channels
+        .then(() => {
+          let pro = this.$http({
+            url: '/mp/v1_0/articles/' + id,
+            method: 'delete'
+          })
+          pro
+            .then(result => {
+              this.$message.success('文章删除成功!')
+              this.getArticleList()
+            })
+            .catch(err => {
+              return this.$message.error('删除文章错误：' + err)
+            })
         })
-        .catch(err => {
-          return this.$message.error('获得频道失败：' + err)
-        })
+        .catch(() => {})
     },
     // 获取文章列表方法
     getArticleList () {
@@ -212,7 +239,7 @@ export default {
   margin-bottom: 20px;
   font-size: 14px;
 }
-.el-pagination{
+.el-pagination {
   margin-top: 25px;
 }
 </style>

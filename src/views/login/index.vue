@@ -44,7 +44,7 @@ import './gt.js'
 import '@/assets/iconfion/iconfont.css'
 export default {
   data () {
-    // 局部函数，实现校验 协议自定义
+    // 局部函数，实现校验 协议自定义，用来校验协议按钮
     var xeiyiTest = function (rule, value, callback) {
       //   rule:校验规则
       // value：被校验的数据
@@ -52,7 +52,7 @@ export default {
     //   if (value) {
     //     callback()
     //   } else {
-    //     callback()
+    //     callback()的意思是校验成功校验失败都会执行
     //   }
       value ? callback() : callback(new Error('请遵守协议'))
     }
@@ -64,7 +64,7 @@ export default {
         code: '',
         xieyi: false
       },
-      // 手机号码及验证码校验
+      // 手机号码及验证码校验按钮校验
       loginFromRoules: {
         mobile: [
           //  手机号码验证必填
@@ -85,10 +85,10 @@ export default {
     //   登陆方法
     login () {
       // 表单校验
-      // validate 饿了么提供的表单校验方法
       // 获得组件对象 el-from( this.$refs.loginFromRef这就是组件对象，固定写法)
       // this.$refs.loginFromRef.validate(回调函数)
       // 点击按钮后把按钮禁用
+      // validate 饿了么提供的表单校验方法
       this.$refs.loginFromRef.validate(valid => {
         // 表单校验失败，后续代码不在执行
         if (!valid) { return false }
