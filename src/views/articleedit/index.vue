@@ -103,6 +103,13 @@ export default {
       this.$refs.editFormRef.validate(valid => {
         // 校验失败停止后续执行
         if (!valid) { return false }
+        // 有用的---------------------------------------------------------
+        // if (this.editForm.cover.type === -1) {
+        //   this.editForm.cover.images.splice(0, 3)
+        // } else {
+        //   this.editForm.cover.images.splice(this.editForm.cover.type, 3)
+        // }
+        // ----------------------------------------------------------------
         // 继续
         // axios
         // 请求方式

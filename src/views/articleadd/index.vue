@@ -128,7 +128,7 @@ export default {
         title: '', // 文章标题
         content: '', // 文章内容
         cover: {
-          type: 0, // 封面类型 -1:自动，0-无图，1-1张，3-3张
+          type: 3, // 封面类型 -1:自动，0-无图，1-1张，3-3张
           images: [] // 封面路径的集合
         },
         channel_id: '' // 频道
@@ -159,8 +159,7 @@ export default {
     },
     // 素材图片选取好，点击“对话框”确定按钮后，记录素材图片
     imageOK () {
-      if (this.materialUrl) {
- 		    // 给添加文章的表单域成员cover.image增加素材图片请求地址信息
+      if (this.materialUrl) { // 给添加文章的表单域成员cover.image增加素材图片请求地址信息
         this.addForm.cover.images[this.xu] = this.materialUrl
         this.dialogVisible = false // 关闭对话框
       } else {

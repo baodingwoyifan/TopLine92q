@@ -38,12 +38,17 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
   let userinfo = window.sessionStorage.getItem('userinfo')
   // 登陆状态
-  NProgress.inc()
+  NProgress.start()
   if (!userinfo && to.path !== '/login') {
     return next('/login')
   }
   next()
+})
+// 配置全局路由"后置守卫"
+// 路由执行完毕，执行收尾工作
+router.afterEach((to, from) => {
   // 关闭进度条  afterEach()
   NProgress.done()
 })
+
 export default router
